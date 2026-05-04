@@ -17,6 +17,8 @@ function FinancePage() {
 
   useEffect(() => {
     db.app_state.put({ key: 'lastOpenPage', value: '/financas' });
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (isMobile) return;
     requestNotificationPermission().then((permission) => {
       if (permission === 'granted') {
         registerPeriodicSync();
