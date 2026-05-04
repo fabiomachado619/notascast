@@ -94,7 +94,7 @@ function WebhookManager({ categoryId }) {
     const logEntry = {
       webhook_id: webhook.id,
       name: payload.name,
-      whatsapp: payload.phone,
+      whatsapp: payload.whatsapp,
       email: payload.email,
       sent_at: new Date().toISOString(),
       status: 'pending'
@@ -133,19 +133,10 @@ function WebhookManager({ categoryId }) {
     }
     
     setIsSubmitting(true);
-    const nome = sendData.name.trim();
-    const email = sendData.email.trim();
-    const telefoneFinal = normalizeBR(sendData.whatsapp);
     const payload = {
-      name: nome,
-      email,
-      phone: telefoneFinal,
-      source: 'pdf_page',
-      customer: {
-        name: nome,
-        email,
-        phone: telefoneFinal
-      }
+      name: sendData.name.trim(),
+      whatsapp: normalizeBR(sendData.whatsapp),
+      email: sendData.email.trim()
     };
     
     await triggerWebhookSend(webhook, payload);
@@ -196,17 +187,7 @@ function WebhookManager({ categoryId }) {
             <Input placeholder="Email" type="email" value={sendData.email} onChange={(e) => setSendData({ ...sendData, email: e.target.value })} disabled={isSubmitting} />
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-sm text-gray-600 mb-2">Payload que será enviado:</p>
-              <pre className="text-xs bg-white p-2 rounded border">{JSON.stringify({
-                name: sendData.name || "Nome",
-                email: sendData.email || "email@exemplo.com",
-                phone: normalizeBR(sendData.whatsapp || "11987654321"),
-                source: "pdf_page",
-                customer: {
-                  name: sendData.name || "Nome",
-                  email: sendData.email || "email@exemplo.com",
-                  phone: normalizeBR(sendData.whatsapp || "11987654321")
-                }
-              }, null, 2)}</pre>
+              <pre className="text-xs bg-white p-2 rounded border">{JSON.stringify({ name: sendData.name || "Nome", whatsapp: normalizeBR(sendData.whatsapp || "11987654321"), email: sendData.email || "email@exemplo.com" }, null, 2)}</pre>
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsSendDialogOpen(false)} disabled={isSubmitting}>Cancelar</Button>
