@@ -378,7 +378,7 @@ const ContactsManager = ({ categoryId, categoryName }) => {
     let payload;
 
     if (isNew) {
-        payload = { ...contactData, phone_e164, ddd, category_id: categoryId, id: uuidv4(), owner_user_id: user.id };
+        payload = { ...contactData, phone_e164, ddd, category_id: categoryId, owner_user_id: user.id };
     } else {
         payload = { ...contactData, phone_e164, ddd, category_id: categoryId, owner_user_id: user.id };
     }

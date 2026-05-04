@@ -231,12 +231,22 @@ import { supabase } from './customSupabaseClient';
       
       async softDelete(table, id) {
         if (!this.userId) throw new Error("Usuário não autenticado.");
-        const now = new Date().toISOString();
         const existingRecord = await db[table].get(id);
 
         if (existingRecord) {
-            const updatedRecord = { ...existingRecord, deleted_at: now, updated_at: now };
-            await this.saveLocalThenSync(table, updatedRecord, 500);
+            await db[table].delete(id);
+
+            if (this.isOnline()) {
+              const { error } = await supabase
+                .from(table)
+                .delete()
+                .eq('id', id)
+                .eq('owner_user_id', this.userId);
+
+              if (error && error.message !== 'Failed to fetch') {
+                console.error(`Erro ao apagar registro em ${table}:`, error);
+              }
+            }
 
              if (table === 'finance_transactions' && existingRecord.payable_id) {
                 const payable = await db.finance_payables.get(existingRecord.payable_id);
@@ -257,16 +267,23 @@ import { supabase } from './customSupabaseClient';
 
       async softDeleteBatch(table, ids) {
         if (!this.userId) throw new Error("Usuário não autenticado.");
-        const now = new Date().toISOString();
-        const recordsToUpdate = await db[table].bulkGet(ids);
-      
-        const updatedRecords = recordsToUpdate
-          .filter(Boolean)
-          .map(record => ({ ...record, deleted_at: now, updated_at: now }));
-      
-        if (updatedRecords.length > 0) {
-          await db[table].bulkPut(updatedRecords);
-          this.flushQueue(table);
+        const recordsToDelete = await db[table].bulkGet(ids);
+        const existingIds = recordsToDelete.filter(Boolean).map((record) => record.id);
+
+        if (existingIds.length > 0) {
+          await db[table].bulkDelete(existingIds);
+
+          if (this.isOnline()) {
+            const { error } = await supabase
+              .from(table)
+              .delete()
+              .in('id', existingIds)
+              .eq('owner_user_id', this.userId);
+
+            if (error && error.message !== 'Failed to fetch') {
+              console.error(`Erro ao apagar lote em ${table}:`, error);
+            }
+          }
         }
       }
       
@@ -325,12 +342,11 @@ import { supabase } from './customSupabaseClient';
             const recordsForSupabase = chunk.map(r => {
                 const recordCopy = { ...r };
                 if (!recordCopy.owner_user_id) recordCopy.owner_user_id = this.userId;
-                recordCopy.updated_at = null; // Let the trigger handle it
                 if (recordCopy.deleted_at === 0) recordCopy.deleted_at = null;
                 return recordCopy;
             });
             
-            const onConflictKey = table === 'contacts' ? 'owner_user_id,category_id,phone_e164' : 'id';
+            const onConflictKey = 'id';
             const { error } = await supabase.from(table).upsert(recordsForSupabase, { onConflict: onConflictKey });
 
             if (error) {

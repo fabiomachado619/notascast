@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
@@ -6,27 +6,19 @@ import CategoryList from '@/components/CategoryList';
 import { Button } from '@/components/ui/button';
 import { LogOut, Landmark } from 'lucide-react';
 import { db } from '@/lib/db';
-import { useNavigate, useLocation } from 'react-router-dom';
-import PinDialog from '@/components/PinDialog';
+import { useNavigate } from 'react-router-dom';
 import QuickTransactionForm from '@/components/QuickTransactionForm';
 
 function HomePage() {
   const { user, signOut } = useSupabaseAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
 
   React.useEffect(() => {
     db.app_state.put({ key: 'lastOpenPage', value: '/app' });
   }, []);
 
   const handleFinanceClick = () => {
-    setIsPinDialogOpen(true);
-  };
-
-  const handlePinSuccess = () => {
-    setIsPinDialogOpen(false);
-    navigate('/financas', { state: { from: location.pathname } });
+    navigate('/financas');
   };
 
   const handleTransactionSaved = () => {
@@ -106,11 +98,6 @@ function HomePage() {
           </div>
         </main>
       </div>
-      <PinDialog
-        isOpen={isPinDialogOpen}
-        onClose={() => setIsPinDialogOpen(false)}
-        onSuccess={handlePinSuccess}
-      />
     </>
   );
 }

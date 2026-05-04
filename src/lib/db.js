@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 
 export const DB_NAME = 'notascat';
-export const DB_VERSION = 307;
+export const DB_VERSION = 308;
 
 export const db = new Dexie(DB_NAME);
 
@@ -11,7 +11,7 @@ db.version(DB_VERSION).stores({
   links: 'id, category_id, owner_user_id, updated_at, deleted_at, [owner_user_id+category_id+deleted_at]',
   webhooks: 'id, category_id, owner_user_id, updated_at, deleted_at, [owner_user_id+category_id+deleted_at]',
   webhook_logs: 'id, webhook_id, owner_user_id, sent_at, updated_at, deleted_at, [owner_user_id+sent_at]',
-  contacts: 'id, owner_user_id, category_id, name, email, phone_e164, updated_at, deleted_at, &[owner_user_id+category_id+phone_e164], [owner_user_id+category_id+deleted_at]',
+  contacts: 'id, owner_user_id, category_id, name, email, phone_e164, updated_at, deleted_at, [owner_user_id+category_id+phone_e164], [owner_user_id+category_id+deleted_at]',
   sync_queue: '++id, table, record_id, operation, priority, attempts, nextRunAt',
   app_state: 'key',
   finance_payables: 'id, owner_user_id, category_id, due_at, status, amount_remaining, updated_at, deleted_at, transaction_id, [owner_user_id+deleted_at]',
@@ -47,7 +47,7 @@ export async function recoverAndOpenDb() {
       links: 'id, category_id, owner_user_id, updated_at, deleted_at, [owner_user_id+category_id+deleted_at]',
       webhooks: 'id, category_id, owner_user_id, updated_at, deleted_at, [owner_user_id+category_id+deleted_at]',
       webhook_logs: 'id, webhook_id, owner_user_id, sent_at, updated_at, deleted_at, [owner_user_id+sent_at]',
-      contacts: 'id, owner_user_id, category_id, name, email, phone_e164, updated_at, deleted_at, &[owner_user_id+category_id+phone_e164], [owner_user_id+category_id+deleted_at]',
+      contacts: 'id, owner_user_id, category_id, name, email, phone_e164, updated_at, deleted_at, [owner_user_id+category_id+phone_e164], [owner_user_id+category_id+deleted_at]',
       sync_queue: '++id, table, record_id, operation, priority, attempts, nextRunAt',
       app_state: 'key',
       finance_payables: 'id, owner_user_id, category_id, due_at, status, amount_remaining, updated_at, deleted_at, transaction_id, [owner_user_id+deleted_at]',

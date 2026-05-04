@@ -150,7 +150,7 @@ function AppStatusIndicator() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2 print:hidden">
+    <div className="fixed bottom-4 right-4 z-50 pointer-events-none flex flex-col items-end gap-2 print:hidden">
       {getStatusChip()}
       <Clock />
     </div>
